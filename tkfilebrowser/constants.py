@@ -112,13 +112,20 @@ def _getdefaultlocale():
             # The LC_MESSAGES locale does not seem to be configured:
             # get the user preferred locale.
             _locale = locale.setlocale(category, None)
-    return _locale.split('.')
+    lang = _locale.split('.')[0]
+    if len(lang) > 2 and lang[2] != '_':
+        lang = lang[:2]
+
+    from babel import Locale
+    from babel.core import UnknownLocaleError
+    try:
+        babel_locale = Locale.parse(lang)
+    except UnknownLocaleError:
+        babel_locale = Locale.parse('en')
+    return babel_locale
 
 
-try:
-    LANG = _getdefaultlocale()[0]
-except ValueError:
-    LANG = 'en'
+LOCALE = _getdefaultlocale()
 
 EN = {}
 FR = {"B": "octets", "MB": "Mo", "kB": "ko", "GB": "Go", "TB": "To",
@@ -131,8 +138,8 @@ FR = {"B": "octets", "MB": "Mo", "kB": "ko", "GB": "Go", "TB": "To",
       "Shortcuts": "Raccourcis", "Save As": "Enregistrer sous",
       "Recent": "Récents", "Recently used": "Récemment utilisés"}
 LANGUAGES = {"fr": FR, "en": EN}
-if LANG[:2] == "fr":
-    TR = LANGUAGES["fr"]
+if LOCALE.language in LANGUAGES:
+    TR = LANGUAGES[LOCALE.language]
 else:
     TR = LANGUAGES["en"]
 
@@ -146,15 +153,15 @@ fromtimestamp = datetime.fromtimestamp
 
 
 def locale_date(date=None):
-    return format_date(date, 'short', locale=LANG)
+    return format_date(date, 'short', locale=LOCALE)
 
 
 def locale_datetime(date=None):
-    return format_datetime(date, 'EEEE HH:mm', locale=LANG)
+    return format_datetime(date, 'EEEE HH:mm', locale=LOCALE)
 
 
 def locale_number(nb):
-    return format_number(nb, locale=LANG)
+    return format_number(nb, locale=LOCALE)
 
 
 SIZES = [_("B"), _("kB"), _("MB"), _("GB"), _("TB")]
@@ -162,7 +169,7 @@ SIZES = [_("B"), _("kB"), _("MB"), _("GB"), _("TB")]
 # ---  locale settings for dates
 TODAY = locale_date()
 YEAR = datetime.now().year
-DAY = int(format_date(None, 'D', locale=LANG))
+DAY = int(format_date(None, 'D', locale=LOCALE))
 
 
 # ---  functions
