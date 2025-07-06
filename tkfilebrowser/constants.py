@@ -79,15 +79,20 @@ IM_RECENT = os.path.join(PATH, "images", "recent.png")
 IM_RECENT_24 = os.path.join(PATH, "images", "recent_24.png")
 
 # ---  translation
+def _get_locale_messages_category():
+    try:
+        category = locale.LC_MESSAGES
+    except AttributeError:
+        # LC_MESSAGES may not be available on non-POSIX OSes
+        category = locale.LC_ALL
+    return category
+
+
 class _different_locale:
     def __init__(self, _locale):
         self.locale = _locale
         self.oldlocale = None
-        try:
-            self.category = locale.LC_MESSAGES
-        except AttributeError:
-            # LC_MESSAGES may not be available on non-POSIX OSes
-            self.category = locale.LC_ALL
+        self.category = _get_locale_messages_category()
 
     def __enter__(self):
         self.oldlocale = locale.setlocale(self.category, None)
@@ -100,12 +105,13 @@ class _different_locale:
 
 
 def _getdefaultlocale():
-    _locale = locale.setlocale(self.category, None)
+    category = _get_locale_messages_category()
+    _locale = locale.setlocale(category, None)
     if _locale == 'C':
         with _different_locale(''):
             # The LC_MESSAGES locale does not seem to be configured:
             # get the user preferred locale.
-            _locale = locale.setlocale(self.category, None)
+            _locale = locale.setlocale(category, None)
     return _locale.split('.')
 
 
