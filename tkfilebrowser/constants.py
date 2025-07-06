@@ -83,24 +83,29 @@ class _different_locale:
     def __init__(self, _locale):
         self.locale = _locale
         self.oldlocale = None
+        try:
+            self.category = locale.LC_MESSAGES
+        except AttributeError:
+            # LC_MESSAGES may not be available on non-POSIX OSes
+            self.category = locale.LC_ALL
 
     def __enter__(self):
-        self.oldlocale = locale.setlocale(locale.LC_MESSAGES, None)
-        locale.setlocale(locale.LC_MESSAGES, self.locale)
+        self.oldlocale = locale.setlocale(self.category, None)
+        locale.setlocale(self.category, self.locale)
 
     def __exit__(self, *args):
         if self.oldlocale is None:
             return
-        locale.setlocale(locale.LC_MESSAGES, self.oldlocale)
+        locale.setlocale(self.category, self.oldlocale)
 
 
 def _getdefaultlocale():
-    _locale = locale.setlocale(locale.LC_MESSAGES, None)
+    _locale = locale.setlocale(self.category, None)
     if _locale == 'C':
         with _different_locale(''):
             # The LC_MESSAGES locale does not seem to be configured:
             # get the user preferred locale.
-            _locale = locale.setlocale(locale.LC_MESSAGES, None)
+            _locale = locale.setlocale(self.category, None)
     return _locale.split('.')
 
 
