@@ -79,8 +79,33 @@ IM_RECENT = os.path.join(PATH, "images", "recent.png")
 IM_RECENT_24 = os.path.join(PATH, "images", "recent_24.png")
 
 # ---  translation
+class _different_locale:
+    def __init__(self, _locale):
+        self.locale = _locale
+        self.oldlocale = None
+
+    def __enter__(self):
+        self.oldlocale = locale.setlocale(locale.LC_MESSAGES, None)
+        locale.setlocale(locale.LC_MESSAGES, self.locale)
+
+    def __exit__(self, *args):
+        if self.oldlocale is None:
+            return
+        locale.setlocale(locale.LC_MESSAGES, self.oldlocale)
+
+
+def _getdefaultlocale():
+    _locale = locale.setlocale(locale.LC_MESSAGES, None)
+    if _locale == 'C':
+        with _different_locale(''):
+            # The LC_MESSAGES locale does not seem to be configured:
+            # get the user preferred locale.
+            _locale = locale.setlocale(locale.LC_MESSAGES, None)
+    return _locale.split('.')
+
+
 try:
-    LANG = locale.getdefaultlocale()[0]
+    LANG = _getdefaultlocale()[0]
 except ValueError:
     LANG = 'en'
 
