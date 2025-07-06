@@ -25,7 +25,7 @@ Copyright 2007-2013 elementary LLC.
 Constants and functions
 """
 import locale
-from babel.numbers import format_number
+from babel.numbers import format_decimal
 from babel.dates import format_date, format_datetime
 from datetime import datetime
 import os
@@ -118,7 +118,7 @@ def locale_datetime(date=None):
 
 
 def locale_number(nb):
-    return format_number(nb, locale=LANG)
+    return format_decimal(nb, locale=LANG)
 
 
 SIZES = [_("B"), _("kB"), _("MB"), _("GB"), _("TB")]
