@@ -24,8 +24,8 @@ Copyright 2007-2013 elementary LLC.
 
 Constants and functions
 """
-import locale
-from babel.numbers import format_number
+from babel import Locale
+from babel.numbers import format_decimal
 from babel.dates import format_date, format_datetime
 from datetime import datetime
 import os
@@ -79,10 +79,7 @@ IM_RECENT = os.path.join(PATH, "images", "recent.png")
 IM_RECENT_24 = os.path.join(PATH, "images", "recent_24.png")
 
 # ---  translation
-try:
-    LANG = locale.getdefaultlocale()[0]
-except ValueError:
-    LANG = 'en'
+LOCALE = Locale.default('LC_MESSAGES')
 
 EN = {}
 FR = {"B": "octets", "MB": "Mo", "kB": "ko", "GB": "Go", "TB": "To",
@@ -95,8 +92,8 @@ FR = {"B": "octets", "MB": "Mo", "kB": "ko", "GB": "Go", "TB": "To",
       "Shortcuts": "Raccourcis", "Save As": "Enregistrer sous",
       "Recent": "Récents", "Recently used": "Récemment utilisés"}
 LANGUAGES = {"fr": FR, "en": EN}
-if LANG[:2] == "fr":
-    TR = LANGUAGES["fr"]
+if LOCALE.language in LANGUAGES:
+    TR = LANGUAGES[LOCALE.language]
 else:
     TR = LANGUAGES["en"]
 
@@ -110,15 +107,15 @@ fromtimestamp = datetime.fromtimestamp
 
 
 def locale_date(date=None):
-    return format_date(date, 'short', locale=LANG)
+    return format_date(date, 'short', locale=LOCALE)
 
 
 def locale_datetime(date=None):
-    return format_datetime(date, 'EEEE HH:mm', locale=LANG)
+    return format_datetime(date, 'EEEE HH:mm', locale=LOCALE)
 
 
 def locale_number(nb):
-    return format_number(nb, locale=LANG)
+    return format_decimal(nb, locale=LOCALE)
 
 
 SIZES = [_("B"), _("kB"), _("MB"), _("GB"), _("TB")]
@@ -126,7 +123,7 @@ SIZES = [_("B"), _("kB"), _("MB"), _("GB"), _("TB")]
 # ---  locale settings for dates
 TODAY = locale_date()
 YEAR = datetime.now().year
-DAY = int(format_date(None, 'D', locale=LANG))
+DAY = int(format_date(None, 'D', locale=LOCALE))
 
 
 # ---  functions
